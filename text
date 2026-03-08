@@ -1,0 +1,410 @@
+### Project Objective
+
+Design and implement a **document-based internal chatbot** that runs entirely in the browser using **HTML, CSS, and JavaScript**, while removing the dependency on the current **admin panel / manual Q&A entry system**.
+
+The chatbot should automatically retrieve answers from **exported Confluence documentation (HTML files)** instead of relying on manually created keyword-based responses.
+
+The final chatbot must run locally in a browser using:
+
+file://index.html
+
+Key constraints:
+
+* No backend server
+* No database
+* No REST APIs
+* No cloud services
+* No external AI APIs
+* No external runtime dependencies
+
+All processing during runtime must occur **directly in the browser using JavaScript**.
+
+A separate **offline preprocessing script written in Python** will prepare the data before the chatbot is used.
+
+The system should also include **efficient search algorithms, basic NLP processing, greeting detection, spelling tolerance, and similarity scoring** to improve the quality of responses.
+
+---
+
+# 1. Current System (Existing Implementation)
+
+The existing chatbot has been developed using:
+
+* HTML
+* CSS
+* JavaScript
+
+The chatbot currently uses a **keyword-based retrieval system**.
+
+User workflow in the current system:
+
+1. A user enters a question in natural language.
+2. The system performs basic text normalization.
+3. The chatbot compares the input against predefined keywords.
+4. Similarity matching is performed using the algorithm known as
+   Levenshtein Distance.
+
+This algorithm calculates the number of edits required to convert one word into another, which allows approximate matching of words with spelling differences.
+
+Content management currently works through an **Admin Panel / Edit Panel**.
+
+The administrator manually enters:
+
+* Question
+* Keywords
+* Answer
+
+This data is then stored in a **JavaScript array inside a JS file**.
+
+Conceptual structure:
+
+knowledge_base.js
+
+Each entry contains:
+
+* question
+* keywords
+* answer
+
+---
+
+# 2. Limitations of the Current System
+
+The current system has several scalability and usability limitations.
+
+1. Every response must be manually written.
+2. Keywords must be manually defined for every entry.
+3. With large knowledge bases the process becomes extremely time consuming.
+4. The chatbot only responds when keywords match.
+5. It cannot retrieve answers directly from documentation.
+6. Content maintenance requires constant updates to the admin panel.
+
+Current documentation scale:
+
+* 2000+ internal processes
+* 4000+ operational jobs
+* Large documentation stored in Confluence pages
+
+Because of this scale, manually feeding questions and answers into the chatbot is not practical.
+
+---
+
+# 3. Desired Future System
+
+The chatbot should be redesigned to operate using **document retrieval instead of manual Q&A storage**.
+
+The new system should work as follows:
+
+1. Confluence pages are exported as HTML files.
+2. A preprocessing system extracts text from these files.
+3. The extracted text is divided into smaller sections.
+4. Each section is converted into a vector representation.
+5. The vectors are stored in JavaScript files.
+6. The chatbot searches these vectors to find relevant answers.
+
+This approach is based on the concept of
+Vector Embeddings,
+which represent text as numerical vectors.
+
+Using vector comparison enables **semantic search**, meaning the chatbot can find relevant content even when the wording of the question differs from the wording in the document.
+
+Reference concept:
+Semantic Search
+
+---
+
+# 4. Runtime Architecture Constraints
+
+The chatbot must operate completely **offline inside the browser**.
+
+Users will access the chatbot by opening:
+
+file://index.html
+
+This means the runtime system must not depend on:
+
+* backend servers
+* databases
+* web services
+* third-party APIs
+* external AI services
+
+All retrieval and search logic must run directly in **JavaScript inside the browser environment**.
+
+---
+
+# 5. Python Preprocessing Script (Offline Processing Step)
+
+Before the chatbot is deployed, a **Python preprocessing script** must prepare the knowledge base.
+
+The purpose of the script is to:
+
+1. Read exported Confluence HTML documents.
+2. Extract clean readable text.
+3. Identify document structure.
+4. Divide documents into smaller searchable chunks.
+5. Convert text chunks into numerical vectors.
+6. Export the processed data into JavaScript files.
+
+Important restriction:
+
+The Python script must use **only Python standard libraries**.
+
+No external libraries or APIs are allowed.
+
+Permitted modules include:
+
+* os
+* re
+* json
+* html.parser
+* pathlib
+* math
+* collections
+
+Reference:
+https://docs.python.org/3/library/
+
+---
+
+# 6. HTML Text Extraction Requirements
+
+The preprocessing script must extract meaningful information from the HTML documents.
+
+Content that should be extracted:
+
+* headings
+* paragraphs
+* numbered steps
+* bullet lists
+* table text
+* operational instructions
+
+Content that must be ignored:
+
+* navigation menus
+* sidebars
+* page headers
+* scripts
+* style tags
+* metadata
+
+The output should be clean readable text suitable for indexing.
+
+---
+
+# 7. Document Chunking Strategy
+
+Large documents must be divided into smaller text segments.
+
+Each chunk should contain approximately:
+
+200–500 words.
+
+Each chunk must include metadata such as:
+
+* chunk ID
+* source document name
+* section heading
+* chunk text
+
+Chunking improves search accuracy and reduces computational overhead.
+
+---
+
+# 8. Vectorization and NLP Processing
+
+Because external AI models cannot be used, implement a **lightweight NLP-based vectorization system**.
+
+Possible techniques include:
+
+* Bag-of-Words
+* N-gram vectorization
+* TF-IDF weighting
+
+The result should be a numeric vector representing each chunk.
+
+Basic NLP preprocessing should also be implemented:
+
+* lowercase normalization
+* punctuation removal
+* stop-word removal
+* tokenization
+* stemming or simple word normalization (optional)
+
+These NLP techniques improve search accuracy.
+
+---
+
+# 9. Embedding Storage Format
+
+Instead of JSON files, the embeddings must be stored in **JavaScript files** so they can be loaded directly by the browser.
+
+Example structure:
+
+vector_batch_1.js
+vector_batch_2.js
+vector_batch_3.js
+
+Each file contains a JavaScript variable holding an array of vector objects.
+
+Each object must contain:
+
+* chunk text
+* embedding vector
+* document source
+* section title
+* chunk ID
+
+---
+
+# 10. Splitting Data into Multiple Files
+
+To avoid large file sizes, the system must split embeddings into multiple files.
+
+Example structure:
+
+vector-data/
+
+vector_batch_1.js
+vector_batch_2.js
+vector_batch_3.js
+vector_batch_4.js
+
+Each batch should contain a manageable number of chunks to improve loading performance.
+
+---
+
+# 11. Chatbot Search Algorithm (Browser Side)
+
+The JavaScript chatbot must implement efficient search logic.
+
+Main responsibilities:
+
+1. Load vector batch files.
+2. Accept a user question.
+3. Perform NLP preprocessing on the input.
+4. Convert the query into the same vector format.
+5. Compare the query vector against stored vectors.
+6. Calculate similarity scores.
+
+Similarity must be computed using the algorithm known as
+Cosine Similarity.
+
+The chatbot should then:
+
+* rank results by similarity score
+* return the most relevant chunks
+* display the best answer to the user.
+
+---
+
+# 12. Greeting and Conversational Responses
+
+The chatbot should also support basic conversational interactions.
+
+The system should recognize common greetings such as:
+
+* hi
+* hello
+* good morning
+* good afternoon
+* good evening
+* thank you
+* thanks
+* bye
+
+When these inputs are detected, the chatbot should return appropriate predefined responses.
+
+Example:
+
+User: "Hi"
+Bot: Greeting message and prompt asking how it can help.
+
+---
+
+# 13. Handling Spelling Mistakes
+
+User queries may contain spelling errors.
+
+The chatbot must include **spelling tolerance** using similarity algorithms.
+
+Use approximate string matching based on
+Levenshtein Distance.
+
+Matching logic should allow responses when:
+
+* similarity score is **greater than 60%**
+
+This allows the chatbot to correctly interpret queries such as:
+
+"schduler job restart"
+"job schduler fail"
+
+and still return the correct documentation section.
+
+---
+
+# 14. Performance Optimization
+
+To ensure fast responses:
+
+* implement efficient search loops
+* avoid unnecessary full-dataset scans
+* rank results by similarity score
+* return only the top matching results
+
+Data structures should be optimized for quick access and processing.
+
+---
+
+# 15. Final Folder Structure
+
+The project should follow a structure similar to:
+
+chatbot/
+
+index.html
+styles.css
+chatbot.js
+
+vector-data/
+vector_batch_1.js
+vector_batch_2.js
+vector_batch_3.js
+
+docs/
+(exported Confluence HTML files)
+
+scripts/
+python_preprocessing_script.py
+
+---
+
+# 16. User Experience
+
+End users will simply:
+
+1. Open index.html
+2. Type a question
+3. The chatbot processes the query
+4. The system searches vector data
+5. The most relevant answer appears instantly
+
+No installation, login, or server access should be required.
+
+---
+
+# 17. Final System Goals
+
+The redesigned chatbot must:
+
+* eliminate the admin panel
+* automatically learn from documentation
+* support thousands of documents
+* work completely offline
+* provide fast responses
+* handle spelling mistakes
+* support greetings and conversational responses
+* use NLP processing for better results
+* retrieve answers directly from Confluence documentation
+* scale to large knowledge bases efficiently
