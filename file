@@ -1,0 +1,133 @@
+Build a Fully Offline, Production-Ready, Scalable, AI-Level Knowledge Chatbot (10,000+ Documents Supported) – BM25 Edition with Full Rich Content + Small Talk**
+
+You must create a complete, self-contained as attached in the image where the user chat and bot replies in the left and in the right the answer/results should be shown, **production-ready** offline chatbot system named “DocAssist” that works as a dynamic website. Any user in the organisation can access this using the index.html page No server-side code, no backend.
+
+All knowledge comes from Confluence pages exported as .docx files. A single Python build script (using ONLY Python standard library like: zipfile, xml.etree.ElementTree, os, json, re, collections, math, datetime...etc) will parse, chunk, extract rich content, compute BM25 statistics, generate a manifest, and split everything into multiple pure JavaScript data files. After running `python build.py` once, the entire folder is production-ready and can be uploaded as-is for public folder so every one able to access the same.
+
+STRICT REQUIREMENTS (must be followed exactly):
+- Zero external libraries, zero pip installs, zero APIs, zero servers.
+- Must handle 10,000+ documents (50,000+ chunks) with fast search (<3 seconds on modern browsers).
+- Chunks must be 100% complete and meaningful — never split inside tables, images, or mid-section.
+- Use BM25 for ranking (industry standard).
+- Always show top 5 results with relevance percentage + “Show more” for next batches.
+- Full conversation memory should be stored until page refresh.
+- Full rich content: clickable URLs, rendered tables, inline images.
+- Production-ready features: basic XSS sanitization, loading spinner, “Knowledge last updated” timestamp, graceful error handling, relative paths only.
+- Simple workflow: User only exports Confluence → puts DOCX in confluence_docs/ → runs `python build.py` → uploads whole folder → everyone can use the same link.
+- Build script must always do a **full rebuild** every run (re-process all DOCX files) for consistency and simplicity.
+
+RICH CONTENT HANDLING – ALL WILL BE FULLY EXTRACTED AND DISPLAYED
+- Hyperlinks → clickable <a> tags  
+- Tables → clean Markdown or HTML tables  
+- Images → extracted to images/ folder with relative src paths
+
+SMALL TALK / GREETING HANDLER / GENERAL QUERIES (must be implemented)
+The bot must politely handle general conversational queries before running BM25 search:
+- Instead user give the first message the bot should greet the user with text 
+- Greetings: Hi, Hello, Hai, Hey, Good morning, Good afternoon, Good evening, etc.
+- Thanks: Thank you, Thanks, Thank you so much, thanks,...etc 
+- Other common: How are you?, Bye, Good bye, See you
+- Time-based responses using the user’s system time (new Date().getHours()):
+  - 00:00–11:59 → “Good morning!”
+  - 12:00–16:59 → “Good afternoon!”
+  - 17:00–23:59 → “Good evening!”
+- Responses must be friendly, short, and natural (e.g. “Hi there! How can I help you” or “Good evening! What process would you like to know about?”).
+- After a greeting response, the conversation memory still continues normally for follow-up questions.
+
+EXACT ALGORITHMS TO IMPLEMENT (use exactly these):
+
+1. DOCX Parsing & Semantic Chunking Algorithm (State-Machine + Rich Parser)
+   Zip + ElementTree → detect headings → extract text + hyperlinks + tables + images (save to images/ folder). Always full rebuild.
+
+2. BM25 Pre-Computation Algorithm 
+   Global df, avgDL, N + per-chunk tf_dict, doc_length, keywords.
+
+3. BM25 Scoring Algorithm (JavaScript)  
+   Exact Okapi BM25 (k₁=1.2, b=0.75) + title/keyword boost + Bag-of-Words pre-filter. Normalize to percentage.
+
+4. Conversation Memory Algorithm  
+   Array of messages → augmented query with last 3 turns.
+
+5. Scalability & File Splitting 
+   Split into knowledge_N.js (max 800–1000 chunks each) + generate manifest.json with timestamp.
+
+6. Small Talk / Greeting Handler Algorithm  
+   In JS: before BM25 search, check query against a small hardcoded list of greetings with different synonyms. If matched, generate time-based friendly reply using new Date().getHours() and return immediately (do not run BM25). Still save the greeting in conversation history.
+
+7. Rich Rendering + Production Features 
+   Sanitize content, show loading spinner, display timestamp, handle “more” requests, fallback message if score too low.
+
+EXACT FOLDER STRUCTURE
+chatbot/
+├── index.html
+├── style.css
+├── script.js
+├── build.py
+├── data/                  ← auto-generated (knowledge_*.js + manifest.json)
+├── images/                ← auto-created
+└── confluence_docs/       ← drop exported .docx files here
+
+BUILD SCRIPT BEHAVIOUR
+- Always full rebuild of all DOCX files.
+- Create data/ and images/ folders.
+- Generate manifest.json with build timestamp.
+- One command only: `python build.py`.
+
+FRONTEND BEHAVIOUR
+- Chat-style interface with history and loading spinner.
+- Top 5 rich answers with % score.
+- “Show more” support.
+- “Knowledge last updated” banner.
+- Full small-talk greeting support using system time.
+- Works perfectly on any static host.
+
+QUALITY GOALS
+- Feels as intelligent as external AI for both technical processes and simple greetings.
+- Secure, fast, reliable, easy to update for the entire organisation.
+- Production-ready after a single build.py run.
+
+**DELIVERABLES**
+- Complete build.py (fully commented).
+- Complete index.html, script.js, style.css, as given the reference image same color theme ..each and everything (fully commented).
+- Exact usage instructions: “Export Confluence pages as DOCX → drop them in confluence_docs/ → run python build.py → upload the entire chatbot/ folder to public drive to have access to everyone.”
+
+Build this system exactly as described. This must be a production-ready, zero-dependency, BM25-powered chatbot with intelligent small-talk handling that anyone in the organisation can use after one simple build.py run.
+
+
+
+
+
+
+
+
+
+Step 1: Create the folder structure and build.py skeleton + rich DOCX parsing
+"Using the master spec exactly, first create the complete folder structure (chatbot/ with confluence_docs/, data/, images/). Then write the full build.py that implements Algorithm 1 (State-Machine Section Extractor + Rich Content Parser) — extract text, hyperlinks (resolve via rels), tables as Markdown, and images to images/ folder with proper Failed to load imageView link insertion. Use only stdlib. Make it fully commented and ready to run."
+
+Step 2: Add BM25 statistics to build.py
+"Now extend the same build.py to also implement Algorithm 2 (BM25 pre-computation): global df, avgDL, N, per-chunk tf_dict and doc_length. Store everything in chunk objects along with keywords and rich content. Keep only stdlib."
+
+Step 3: Add chunk splitting and JS file generation
+"Continue in build.py: after BM25 stats, implement Algorithm 5 (splitting into knowledge_N.js files with max 800-1000 chunks each). Each file must export const knowledgeBasePartN = [...] with all BM25 data and rich content. Create the data/ folder automatically."
+
+Step 4: Create index.html
+"Now create index.html with clean chat UI (history display area, input box, Send button, Enter support). Include dynamic loading of all knowledge_*.js files. Follow the master spec exactly, no external libraries."
+
+Step 5: Create script.js with BM25 scoring function
+"Write script.js: implement Algorithm 3 (full Okapi BM25 scoring with k1=1.2, b=0.75, title-boost, keyword-boost, Bag-of-Words pre-filter). Include the exact formula in comments. Also add loadKnowledge() to combine all knowledgeBasePartN arrays."
+
+Step 6: Add conversation memory & augmented query
+"Extend script.js with Algorithm 4 (conversation memory array + augmented query logic using last 3 turns). On every user message, append to history, create augmented query, then run BM25 search."
+
+Step 7: Add rich rendering + top-5 display + "more" handling
+"Now implement rich rendering in script.js (Algorithm 6): convert Markdown links/tables/images to HTML, display top 5 with % score, handle 'more'/'next' requests to show next batch of 5. Also add threshold check (score > 0.3) and fallback message."
+
+Step 8: Create style.css
+"Write style.css for a clean, professional chat look (scrollable history, nice answer cards, image support, responsive). Make it match the UI in index.html."
+
+Step 9: Final testing instructions & any fixes
+"Provide the exact usage instructions at the end of build.py and script.js comments. Also add a small test function in script.js for quick verification. If anything needs fixing based on the master spec, do it now."
+
+Step 10 (recommended):
+After all files are generated, paste:
+"Review the entire project against the original master prompt. Fix any missing part (rich content, BM25 constants, scalability, memory, etc.) and give me a summary of what was built."
